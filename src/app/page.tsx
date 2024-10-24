@@ -1,101 +1,114 @@
-import Image from "next/image";
+"use client";
+import {parseISO, format } from 'date-fns'
+import { PokemonType } from "@/utils/types";
+import { useEffect, useState } from "react";
+import { BsPencilSquare } from "react-icons/bs";
+import { MdDeleteOutline } from "react-icons/md";
+import { TbPokeball } from 'react-icons/tb';
+import Pokedex from '@/components/Pokedex';
 
 export default function Home() {
-  return (
-    <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
-      <main className="flex flex-col gap-8 row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="list-inside list-decimal text-sm text-center sm:text-left font-[family-name:var(--font-geist-mono)]">
-          <li className="mb-2">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] px-1 py-0.5 rounded font-semibold">
-              src/app/page.tsx
-            </code>
-            .
-          </li>
-          <li>Save and see your changes instantly.</li>
-        </ol>
+  const [pokemons, setPokemons] = useState<PokemonType[]>([]);
+  const handleAllPokemons = async () => {
+    const response = await fetch("http://localhost:3000/api/pokemon");
+    const data: PokemonType[] = await response.json();
+    setPokemons(data);
+  };
 
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:min-w-44"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
+  useEffect(() => {
+    handleAllPokemons();
+  }, []);
+
+  const [showPokedex, setShowPokedex] = useState(false);
+  const handleClose = () => {
+    setShowPokedex(false);
+  };
+
+  const handleOpen = () => {
+    setShowPokedex(true)
+  }
+
+  return (
+    <div className="bg-transparent m-auto p-6">
+      <div className="flex flex-col max-w-screen-xl p-4 m-auto">
+        <div className="flex gap-4 justify-between w-full">
+          <div className="flex flex-col gap-3 w-full m-5">
+            <h2 className="text-5xl text-center">Meus Pokemons Capturados!</h2>
+            <p className="text-center font-secondary text-2xl font-thin tracking-wide">
+              Meus pokemons que capturei!!
+            </p>
+          </div>
         </div>
-      </main>
-      <footer className="row-start-3 flex gap-6 flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
+        <table className="w-full rounded-xl border-4 border-red-700">
+          <thead className="bg-red-700 rounded-t-md">
+            <tr className=''>
+              <th className="p-4 m-auto text-center font-semibold tracking-wider">
+                Nome
+              </th>
+              <th className="p-4 m-auto text-center font-semibold tracking-wider">
+                Altura
+              </th>
+              <th className="p-4 m-auto text-center font-semibold tracking-wider">
+                Data de Captura
+              </th>
+              <th className="p-4 m-auto text-center font-semibold tracking-wider">
+                Peso
+              </th>
+              <th className="p-4 m-auto text-center font-semibold tracking-wider">
+                Categoria
+              </th>
+              <th className="p-4 m-auto text-center font-semibold tracking-wider">
+                Ações
+              </th>
+            </tr>
+          </thead>
+          <tbody className="bg-[#cc8316] ">
+            {pokemons && pokemons.length > 0 ? (
+              pokemons.map((pokemon, indice) => (
+                <tr key={indice} className='border-[#b91c1c] border-b-2 '>
+                  <td className="p-4 m-auto text-center font-light flex justify-center w-max items-center gap-3">
+                    <TbPokeball color='#b91c1c' size={20} className='hover:brightness-0 hover:saturate-100 hover:invert transition-all duration-300 cursor-pointer hover:scale-150' onClick={() => handleOpen}/>
+                    <p className='min-w-28 flex text-left'>{pokemon.nome}</p>
+                  </td>
+                  <td className="p-4 m-auto text-center font-light ">
+                    {pokemon.altura}
+                  </td>
+                  <td className="p-4 m-auto text-center font-light ">
+                    {pokemon.dataDaCaptura ? format(parseISO(pokemon.dataDaCaptura), "dd/MM/yyyy") : "Data não disponível"}
+                  </td>
+                  <td className="p-4 m-auto text-center font-light ">
+                    {pokemon.peso}
+                  </td>
+                  <td className="p-4 m-auto text-center font-light ">
+                    {pokemon.categoria}
+                  </td>
+                  <td className="p-4 m-auto text-center font-light flex items-center gap-3 w-full justify-center">
+                    <BsPencilSquare
+                      color="#3b82f6"
+                      size={25}
+                      className=" cursor-pointer mt-1"
+                      onClick={() => alert("Queijo é muito bom velho!")}
+                    />
+                    <MdDeleteOutline
+                      color="#ef4444"
+                      size={30}
+                      className=" cursor-pointer "
+                    />
+                  </td>
+                  <Pokedex show={showPokedex} onClose={handleClose} nomePokemon={pokemon.nome} />
+                </tr>
+                
+              ))
+            ) : (
+              <tr>
+                <td colSpan={6} className="p-4 m-auto text-center font-light">
+                  Nenhum pokemon encontrado
+                </td>
+              </tr>
+            )}
+          </tbody>
+        </table>
+      </div>
     </div>
   );
 }
