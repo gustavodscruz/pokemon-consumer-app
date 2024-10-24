@@ -20,13 +20,13 @@ const Pokedex = ({
       console.log(pokemon.nome.toLowerCase());
       const nomeRebaixado = pokemon.nome.toLowerCase();
       const response = await fetch(
-        `http://localhost:3000/api/pokemon/${nomeRebaixado}`
+        `https://pokeapi.co/api/v2/pokemon/${nomeRebaixado}`
       );
       if (!response.ok) {
         throw new Error("Network response was not ok");
       }
-      const data : string | undefined = await response.json();
-      if (data && data.trim() != "") {
+      const data : string = await response.json();
+      if (data && data != "") {
         setImagem(data);
       } else {
         setImagem("https://httpgoats.com/404.jpg"); // Defina null se a URL da imagem não estiver disponível
