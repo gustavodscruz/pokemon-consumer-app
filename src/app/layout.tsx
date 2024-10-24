@@ -27,7 +27,7 @@ export default function RootLayout({
   return (
     <html lang="pt-br">
       <body
-        className={`${inconsolata.variable} ${spaceGrotest.variable} antialiased font-secondary flex flex-col w-full min-h-screen`}
+        className={`${inconsolata.variable} ${spaceGrotest.variable} antialiased font-primary flex flex-col w-full min-h-screen`}
       >
         <Header />
         <main className="bg-[#ffc21c] flex-grow">

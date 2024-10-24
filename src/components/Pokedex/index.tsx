@@ -1,36 +1,86 @@
-import { PokemonType } from '@/utils/types'
-import Image from 'next/image'
-import React, { useEffect, useState } from 'react'
-import { TiTimesOutline } from 'react-icons/ti'
+import React, { useEffect, useState, useRef } from "react";
+import Image from "next/image";
+import { TiTimesOutline } from "react-icons/ti";
+import { PokemonType } from "@/utils/types";
 
-const Pokedex = ({show, onClose, nomePokemon}:{show : boolean, onClose : () => void, nomePokemon : PokemonType['nome']}) => {
-  const [imagem, setImagem] = useState<string>("")
-  const handlePokemonInfo = async() => {
-    try{
-      const response = await fetch(`http://localhost:3000/api/pokemon/${nomePokemon.toLowerCase()}`)
-      if(!response.ok){
-        throw new Error('Não encontrado!')
+const Pokedex = ({
+  show,
+  onClose,
+  pokemon,
+}: {
+  show: boolean;
+  onClose: () => void;
+  pokemon: PokemonType;
+}) => {
+  const [imagem, setImagem] = useState<string | null>(null);
+  const dialogRef = useRef<HTMLDialogElement>(null);
+
+  const handlePokemonInfo = async () => {
+    try {
+      console.log(pokemon.nome.toLowerCase());
+      const nomeRebaixado = pokemon.nome.toLowerCase();
+      const response = await fetch(
+        `http://localhost:3000/api/pokemon/${nomeRebaixado}`
+      );
+      if (!response.ok) {
+        throw new Error("Network response was not ok");
       }
-      const data = await response.json()
-      setImagem(data)
-    } catch(error){
-      console.error('Erro: ' + error)
-      setImagem('')
+      const data : string | undefined = await response.json();
+      if (data && data.trim() != "") {
+        setImagem(data);
+      } else {
+        setImagem("https://httpgoats.com/404.jpg"); // Defina null se a URL da imagem não estiver disponível
+      }
+    } catch (error) {
+      console.error("Failed to fetch pokemon info:", error);
+      setImagem("https://httpgoats.com/404.jpg"); // URL de fallback em caso de erro
     }
-  }
-  useEffect(() => {
-    handlePokemonInfo()
-  }, [])
-  if(!show) return null
-  return (
-    <div className='h-screen w-screen opacity-40 z-10 flex justify-center items-center fixed left-0 top-0'>
-          <div className="w-1/6 bg-pokemon-green flex flex-col gap-4">
-            <p className='text-2xl text-center font-bold'>{nomePokemon}</p>
-            <Image height={400} width={400} objectFit='contain' className='object-contain' src={imagem ?? 'https://httpgoats.com/static/codes/goats/small/404.avif'} alt={`Foto do pokemon ${nomePokemon} ${!imagem ? 'não encontrada' : ''}`} />
-          </div>
-          <TiTimesOutline size={30} color='#c73b2c' className='fixed top-5 right-5' onClick={onClose}/>
-    </div>
-  )
-}
+  };
 
-export default Pokedex
+  useEffect(() => {
+    handlePokemonInfo();
+  }, [pokemon.nome]);
+
+  useEffect(() => {
+    if (show && dialogRef.current) {
+      dialogRef.current.showModal();
+    } else if (dialogRef.current) {
+      dialogRef.current.close();
+    }
+  }, [show]);
+
+  return (
+    <dialog
+      ref={dialogRef}
+      className="rounded-lg z-10 flex justify-center items-center outline-none border-none"
+    >
+      <div className="bg-pokemon-green flex flex-col gap-2 p-6">
+        <div className="flex justify-end w-full">
+          <TiTimesOutline
+            size={30}
+            color="#c73b2c"
+            className="block cursor-pointer hover:scale-125"
+            onClick={onClose}
+          />
+        </div>
+        <p className="text-2xl text-center font-bold text-white">
+          {pokemon.nome}
+        </p>
+        {imagem ? (
+          <Image
+            height={200}
+            width={200}
+            objectFit="contain"
+            className="object-contain"
+            src={imagem}
+            alt={`Foto do pokemon ${pokemon.nome}`}
+          />
+        ) : (
+          <p>Imagem não disponível</p>
+        )}
+      </div>
+    </dialog>
+  );
+};
+
+export default Pokedex;

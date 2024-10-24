@@ -1,14 +1,17 @@
 "use client";
-import {parseISO, format } from 'date-fns'
+import { parseISO, format } from 'date-fns';
 import { PokemonType } from "@/utils/types";
 import { useEffect, useState } from "react";
 import { BsPencilSquare } from "react-icons/bs";
 import { MdDeleteOutline } from "react-icons/md";
-import { TbPokeball } from 'react-icons/tb';
-import Pokedex from '@/components/Pokedex';
+import { TbPokeball } from "react-icons/tb";
+import Pokedex from '@/components/Pokedex'; // Certifique-se de importar o componente Pokedex
 
 export default function Home() {
   const [pokemons, setPokemons] = useState<PokemonType[]>([]);
+  const [showPokedex, setShowPokedex] = useState(false);
+  const [selectedPokemon, setSelectedPokemon] = useState<PokemonType | null>(null);
+
   const handleAllPokemons = async () => {
     const response = await fetch("http://localhost:3000/api/pokemon");
     const data: PokemonType[] = await response.json();
@@ -19,14 +22,15 @@ export default function Home() {
     handleAllPokemons();
   }, []);
 
-  const [showPokedex, setShowPokedex] = useState(false);
-  const handleClose = () => {
-    setShowPokedex(false);
+  const handleOpen = (pokemon: PokemonType) => {
+    setSelectedPokemon(pokemon);
+    setShowPokedex(true);
   };
 
-  const handleOpen = () => {
-    setShowPokedex(true)
-  }
+  const handleClose = () => {
+    setShowPokedex(false);
+    setSelectedPokemon(null);
+  };
 
   return (
     <div className="bg-transparent m-auto p-6">
@@ -41,7 +45,7 @@ export default function Home() {
         </div>
         <table className="w-full rounded-xl border-4 border-red-700">
           <thead className="bg-red-700 rounded-t-md">
-            <tr className=''>
+            <tr>
               <th className="p-4 m-auto text-center font-semibold tracking-wider">
                 Nome
               </th>
@@ -67,7 +71,12 @@ export default function Home() {
               pokemons.map((pokemon, indice) => (
                 <tr key={indice} className='border-[#b91c1c] border-b-2 '>
                   <td className="p-4 m-auto text-center font-light flex justify-center w-max items-center gap-3">
-                    <TbPokeball color='#b91c1c' size={20} className='hover:brightness-0 hover:saturate-100 hover:invert transition-all duration-300 cursor-pointer hover:scale-150' onClick={() => handleOpen}/>
+                    <TbPokeball 
+                      color='#b91c1c' 
+                      size={20} 
+                      className='hover:brightness-0 hover:saturate-100 hover:invert transition-all duration-300 cursor-pointer hover:scale-150' 
+                      onClick={() => handleOpen(pokemon)} // Passe o pokemon para handleOpen
+                    />
                     <p className='min-w-28 flex text-left'>{pokemon.nome}</p>
                   </td>
                   <td className="p-4 m-auto text-center font-light ">
@@ -95,9 +104,7 @@ export default function Home() {
                       className=" cursor-pointer "
                     />
                   </td>
-                  <Pokedex show={showPokedex} onClose={handleClose} nomePokemon={pokemon.nome} />
                 </tr>
-                
               ))
             ) : (
               <tr>
@@ -109,6 +116,9 @@ export default function Home() {
           </tbody>
         </table>
       </div>
+      {selectedPokemon && (
+        <Pokedex show={showPokedex} onClose={handleClose} pokemon={selectedPokemon!} />
+      )}
     </div>
   );
 }
